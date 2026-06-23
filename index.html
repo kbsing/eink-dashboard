@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Win95 Invert Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="desktop">
+        
+        <div id="page-dashboard" class="page-content active">
+            <div class="win-window clock-section">
+                <div class="win-titlebar">
+                    <span>System_Clock.exe</span>
+                    <div class="win-controls"><button>X</button></div>
+                </div>
+                <div class="win-body">
+                    <div class="clock-container">
+                        <div class="flip-card"><span id="hour-box">00</span></div>
+                        <div class="time-colon">:</div>
+                        <div class="flip-card"><span id="minute-box">00</span></div>
+                    </div>
+                    <div class="date-text" id="date">读取日期...</div>
+                </div>
+            </div>
+
+            <div class="win-window weather-section">
+                <div class="win-titlebar">
+                    <span>Weather_Monitor.dll</span>
+                </div>
+                <div class="win-body sunken-panel weather-panel">
+                    <div class="current-weather" id="current_weather">
+                        <div id="cw-icon" class="cw-icon-box"></div>
+                        <div id="cw-text">连接气象卫星中...</div>
+                    </div>
+                    <div class="forecast-list" id="forecast_list">
+                        </div>
+                </div>
+            </div>
+
+            <div class="win-window quote-section">
+                <div class="win-titlebar">
+                    <span>Quote_of_the_day.txt</span>
+                </div>
+                <div class="win-body sunken-panel quote-panel">
+                    <div id="hitokoto">「 初始化系统内核... 」</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-news" class="page-content">
+            <div class="win-window news-section">
+                <div class="win-titlebar">
+                    <span>Tech_News_Explorer.exe</span>
+                    <div class="win-controls"><button>_</button><button>□</button><button>X</button></div>
+                </div>
+                <div class="win-body sunken-panel news-panel">
+                    <ul id="news-list">
+                        <li>正在通过 RSS 拨号获取 IT 资讯...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="taskbar">
+        <div class="taskbar-left">
+            <button class="win-btn start-btn" id="theme-toggle" onclick="toggleTheme()">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor"></path>
+                </svg>
+                <b>反色</b>
+            </button>
+            <div class="divider"></div>
+            <button class="win-btn task-btn active" onclick="switchPage('dashboard', this)">控制台</button>
+            <button class="win-btn task-btn" onclick="switchPage('news', this)">科技新闻</button>
+        </div>
+        <div class="taskbar-right sunken-panel tray-clock">
+            <span id="tray-time">00:00</span>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

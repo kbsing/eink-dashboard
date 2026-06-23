@@ -151,12 +151,12 @@ body {
 .time-colon {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 11vmin; font-weight: bold; color: var(--text-main);
-    padding-bottom: 2vmin; animation: blink 2s steps(2, start) infinite;
+    padding-bottom: 2vmin;
 }
 
 .date-text { text-align: center; font-size: 1.1rem; font-weight: bold; margin-top: 1vh; }
 
-@keyframes blink { to { visibility: hidden; } }
+
 
 /* ========== 2. 天气区 ========== */
 .weather-section { flex: 1; }

@@ -3,25 +3,20 @@
     --bg-base: #FFFFFF;
     --text-main: #000000;
     
-    /* 窗口外观 */
     --win-bg: #C0C0C0;
-    --win-border-nw: #FFFFFF; /* 左上高光 */
-    --win-border-se: #000000; /* 右下阴影 */
+    --win-border-nw: #FFFFFF; 
+    --win-border-se: #000000; 
     
-    /* 内部面板 */
     --panel-bg: #FFFFFF;
     --panel-border-nw: #808080;
     
-    /* 标题栏 */
     --title-bg: #000000;
     --title-text: #FFFFFF;
     
-    /* 翻页时钟卡片 */
     --flip-bg: #000000;
     --flip-text: #FFFFFF;
     --flip-shadow: #555555;
     
-    /* 按钮激活状态 */
     --btn-active-bg: #E0E0E0;
 }
 
@@ -61,11 +56,29 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* 核心修复：精准卡死桌面高度为屏幕总高减去任务栏高度 */
+/* ========== 墨水屏物理刷屏遮罩样式 ========== */
+#eink-flash {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 99999; 
+    display: none;
+    pointer-events: all; 
+}
+#eink-flash.black {
+    display: block !important;
+    background-color: #000000 !important;
+}
+#eink-flash.white {
+    display: block !important;
+    background-color: #FFFFFF !important;
+}
+
+/* 精准卡死桌面高度，允许弹性收缩 */
 .desktop {
     height: calc(100vh - 45px);
     background-color: var(--bg-base);
-    padding: 2vmin; /* 边距也随屏幕尺寸动态自适应 */
+    padding: 2vmin; 
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -75,7 +88,7 @@ body {
     display: none; 
     flex-direction: column; 
     height: 100%; 
-    gap: 1.5vh; /* 垂直间距由逻辑高度控制 */
+    gap: 1.5vh; 
 }
 .page-content.active { display: flex; }
 
@@ -86,16 +99,16 @@ body {
     border-right: 2px solid var(--win-border-se); border-bottom: 2px solid var(--win-border-se);
     display: flex; 
     flex-direction: column;
-    min-height: 0;      /* 关键：允许窗口在必要时收缩，防止撑爆屏幕 */
-    flex-shrink: 1;     /* 关键：允许弹性收缩 */
+    min-height: 0;      
+    flex-shrink: 1;     
 }
 
 .win-titlebar {
     background-color: var(--title-bg); color: var(--title-text);
     padding: 4px 8px; font-weight: bold; 
-    font-size: 1rem; /* 固定合理尺寸 */
+    font-size: 1rem; 
     display: flex; justify-content: space-between; align-items: center;
-    flex-shrink: 0;  /* 标题栏不允许收缩 */
+    flex-shrink: 0;  
 }
 
 .win-controls button {
@@ -107,12 +120,38 @@ body {
     width: 22px; height: 18px; cursor: pointer; line-height: 1;
 }
 
+.win-toolbar {
+    background-color: var(--win-bg);
+    padding: 4px 6px;
+    border-bottom: 2px solid var(--panel-border-nw);
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.tool-btn {
+    height: 26px !important;
+    font-size: 0.95rem !important;
+    padding: 2px 8px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.win-btn:disabled {
+    background-color: var(--win-bg);
+    border: 2px solid var(--panel-border-nw);
+    color: var(--panel-border-nw);
+    cursor: not-allowed;
+    padding: 4px 10px !important; 
+}
+
 .win-body { 
     padding: 1.5vmin; 
     display: flex; 
     flex-direction: column; 
     flex-grow: 1; 
-    min-height: 0; /* 允许身体部分收缩 */
+    min-height: 0; 
 }
 
 .sunken-panel {
@@ -121,7 +160,7 @@ body {
     border-right: 2px solid var(--win-border-nw); border-bottom: 2px solid var(--win-border-nw);
 }
 
-/* ========== 1. 翻页时钟区 (通过 vmin 动态锁死比例) ========== */
+/* ========== 1. 翻页时钟区 ========== */
 .clock-section { flex: 1.2; }
 .clock-container { 
     display: flex; justify-content: center; align-items: center; 
@@ -132,16 +171,12 @@ body {
     position: relative;
     background-color: var(--flip-bg); color: var(--flip-text);
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    /* 终极修复：全部使用 vmin。不管横屏还是竖屏，时钟都会精确卡在安全尺寸内 */
-    width: 26vmin; 
-    height: 32vmin; 
-    border-radius: 6px;
+    width: 26vmin; height: 32vmin; border-radius: 6px;
     display: flex; justify-content: center; align-items: center;
     overflow: hidden; box-shadow: 3px 3px 0px var(--flip-shadow);
 }
 .flip-card span { 
-    font-size: 20vmin; /* 字体随 vmin 缩放，永不溢出卡片 */
-    font-weight: 900; letter-spacing: -0.5vmin; line-height: 1; 
+    font-size: 20vmin; font-weight: 900; letter-spacing: -0.5vmin; line-height: 1; 
 }
 .flip-card::after {
     content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px;
@@ -151,12 +186,10 @@ body {
 .time-colon {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 11vmin; font-weight: bold; color: var(--text-main);
-    padding-bottom: 2vmin;
+    padding-bottom: 2vmin; 
 }
 
 .date-text { text-align: center; font-size: 1.1rem; font-weight: bold; margin-top: 1vh; }
-
-
 
 /* ========== 2. 天气区 ========== */
 .weather-section { flex: 1; }
@@ -178,7 +211,7 @@ body {
 .quote-panel { 
     display: flex; align-items: center; padding: 10px 15px; 
     font-size: 1.1rem; font-weight: bold; line-height: 1.4; 
-    overflow: hidden; /* 防止一言句子太长时撑开视口 */
+    overflow: hidden; 
 }
 
 /* ========== 4. 新闻区 ========== */
@@ -196,9 +229,9 @@ body {
 .taskbar {
     background-color: var(--win-bg);
     border-top: 2px solid var(--win-border-nw); 
-    height: 45px; /* 固定高度 */
+    height: 45px; 
     display: flex; justify-content: space-between; align-items: center; padding: 0 4px;
-    flex-shrink: 0; /* 绝对禁止任务栏被压缩 */
+    flex-shrink: 0; 
 }
 .taskbar-left { display: flex; gap: 4px; height: 100%; align-items: center; }
 .divider { width: 2px; height: 80%; background: var(--panel-border-nw); border-right: 1px solid var(--win-border-nw); margin: 0 4px; }
@@ -214,3 +247,36 @@ body {
 }
 .start-btn { display: flex; align-items: center; gap: 4px; font-style: italic; }
 .tray-clock { height: 30px; padding: 0 8px; display: flex; align-items: center; font-size: 1rem; margin-right: 4px; }
+
+/* ========== 设置弹窗样式 ========== */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9000;
+    display: none; justify-content: center; align-items: center;
+}
+.modal-overlay.active { display: flex; }
+
+.modal-window { width: 85vw; max-width: 400px; }
+
+.win-fieldset {
+    border: 2px solid var(--panel-border-nw);
+    border-right-color: var(--win-border-nw); 
+    border-bottom-color: var(--win-border-nw);
+    padding: 15px 10px; margin-bottom: 15px;
+}
+.win-fieldset legend { padding: 0 5px; color: var(--text-main); font-weight: bold; }
+
+.radio-group { margin-bottom: 10px; }
+.radio-group label { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main); }
+
+.input-group { margin-top: 8px; padding-left: 24px; }
+.win-input {
+    width: 100%; padding: 6px 8px; font-family: inherit; font-size: 1rem;
+    background-color: var(--panel-bg); color: var(--text-main);
+    outline: none;
+}
+.win-input:disabled { background-color: var(--win-bg); color: #888; }
+
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.modal-actions .win-btn { min-width: 70px; }

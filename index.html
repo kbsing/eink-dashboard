@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Win95 Invert Dashboard</title>
+    <title>E-Ink Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div id="eink-flash"></div>
+
     <div class="desktop">
         
         <div id="page-dashboard" class="page-content active">
@@ -55,6 +57,17 @@
                     <span>Tech_News_Explorer.exe</span>
                     <div class="win-controls"><button>_</button><button>□</button><button>X</button></div>
                 </div>
+                
+                <div class="win-toolbar">
+                    <button class="win-btn tool-btn" onclick="openSettingsModal()">
+                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: middle;">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        <span>设置(S)</span>
+                    </button>
+                </div>
+
                 <div class="win-body sunken-panel news-panel">
                     <ul id="news-list">
                         <li>正在通过 RSS 拨号获取 IT 资讯...</li>
@@ -76,13 +89,40 @@
             </button>
             <div class="divider"></div>
             <button class="win-btn task-btn active" onclick="switchPage('dashboard', this)">控制台</button>
-            <button class="win-btn task-btn" onclick="switchPage('news', this)">科技新闻</button>
+            <button class="win-btn task-btn" onclick="switchPage('news', this)">新闻</button>
         </div>
         <div class="taskbar-right sunken-panel tray-clock">
             <span id="tray-time">00:00</span>
         </div>
     </div>
 
-    <script src="js/app.js"></script>
+    <div class="modal-overlay" id="settings-modal">
+        <div class="win-window modal-window">
+            <div class="win-titlebar">
+                <span>RSS_Settings.exe</span>
+                <div class="win-controls"><button onclick="closeSettingsModal()">X</button></div>
+            </div>
+            <div class="win-body">
+                <fieldset class="win-fieldset">
+                    <legend>选择资讯来源</legend>
+                    <div class="radio-group">
+                        <label><input type="radio" name="rss-type" value="default" onchange="toggleRssInput()"> 默认 (IT之家)</label>
+                    </div>
+                    <div class="radio-group">
+                        <label><input type="radio" name="rss-type" value="custom" onchange="toggleRssInput()"> 自定义 RSS 链接</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="custom-rss-url" class="win-input sunken-panel" placeholder="例如: https://v2ex.com/index.xml" disabled>
+                    </div>
+                </fieldset>
+                <div class="modal-actions">
+                    <button class="win-btn" onclick="saveSettings()">确定</button>
+                    <button class="win-btn" onclick="closeSettingsModal()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=3.0"></script>
 </body>
 </html>

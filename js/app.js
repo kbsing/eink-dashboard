@@ -2,11 +2,13 @@
 const CONFIG = {
     LAT: 30.494791,   
     LON: 114.304569,  
-    WEATHER_INTERVAL: 1000 * 60 * 60, 
-    QUOTE_INTERVAL: 1000 * 60 * 30    
+    WEATHER_INTERVAL: 1000 * 60 * 60, // 1小时
+    QUOTE_INTERVAL: 1000 * 60 * 30,   // 半小时
+    NEWS_INTERVAL: 1000 * 60 * 60     // 新闻1小时刷新一次
 };
 
 // ================= 主题与页面切换 =================
+// (保持原样...)
 function initTheme() {
     const savedTheme = localStorage.getItem('eink-theme') || 'light';
     if (savedTheme === 'dark') {
@@ -28,13 +30,11 @@ function toggleTheme() {
 function switchPage(pageId, btnElement) {
     if (window.isEinkFlashing) return;
     window.isEinkFlashing = true;
-
     const flashEl = document.getElementById('eink-flash');
     flashEl.className = 'black';
 
     setTimeout(() => {
         flashEl.className = 'white';
-
         setTimeout(() => {
             document.querySelectorAll('.task-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
@@ -49,9 +49,7 @@ function switchPage(pageId, btnElement) {
 
             flashEl.className = '';
             window.isEinkFlashing = false;
-
         }, 260); 
-
     }, 260); 
 }
 
@@ -76,38 +74,28 @@ function initClock() {
 
         const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 星期${days[now.getDay()]}`;
         if (elDate.innerText !== dateStr) elDate.innerText = dateStr;
+
+        // 【修复漂移】使用递归 setTimeout，每次重新对齐系统的 00 毫秒，避免长时间运行导致的严重漂移
+        const msToNextMinute = (60 - new Date().getSeconds()) * 1000 - new Date().getMilliseconds();
+        setTimeout(tick, msToNextMinute);
     }
     
-    // 1. 页面加载时立刻执行一次，显示当前时间
     tick();
-
-    // 2. 计算当前时间距离下一分钟的 00 秒还有多少毫秒
-    const now = new Date();
-    const msToNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
-
-    // 3. 设定一个一次性的定时器，在下一分钟整点精准触发
-    setTimeout(() => {
-        tick(); // 整点更新一次
-        // 4. 之后就可以放心地使用 60000 毫秒（1分钟）的间隔了，大幅降低 CPU 唤醒频率
-        setInterval(tick, 60000); 
-    }, msToNextMinute);
 }
 
-async function fetchQuote() {
+async function fetchQuote() { /* (保持原样) */
     try {
         const res = await fetch('https://v1.hitokoto.cn?c=k&c=d&c=i');
-        // 增加 HTTP 状态码校验，如果不是 200-299，直接抛出异常交给 catch 处理
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        
         const data = await res.json();
         document.getElementById('hitokoto').innerText = `「 ${data.hitokoto} 」 —— ${data.from}`;
     } catch (e) {
-        // 无论是网络断开、超时，还是服务器 500 报错，都会统一走到这里
         document.getElementById('hitokoto').innerText = `[一言接口请求失败/超时]`;
     }
 }
 
-// ================= 气象引擎与 SVG 图标 =================
+// ================= 气象引擎 =================
+// (SVG_ICONS 与 wmoToSVGData 保持原样...)
 const SVG_ICONS = {
     sunny: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
     cloudy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>`,
@@ -120,8 +108,7 @@ const SVG_ICONS = {
 
 function wmoToSVGData(code) {
     const map = {
-        0: [SVG_ICONS.sunny, "晴朗"], 
-        1: [SVG_ICONS.cloudy, "少云"], 2: [SVG_ICONS.cloudy, "多云"], 3: [SVG_ICONS.cloudy, "阴天"],
+        0: [SVG_ICONS.sunny, "晴朗"], 1: [SVG_ICONS.cloudy, "少云"], 2: [SVG_ICONS.cloudy, "多云"], 3: [SVG_ICONS.cloudy, "阴天"],
         45: [SVG_ICONS.fog, "大雾"], 48: [SVG_ICONS.fog, "雾凇"],
         51: [SVG_ICONS.rain, "微雨"], 53: [SVG_ICONS.rain, "小雨"], 55: [SVG_ICONS.rain, "中雨"],
         56: [SVG_ICONS.rain, "冻雨"], 57: [SVG_ICONS.rain, "冻雨"],
@@ -133,7 +120,6 @@ function wmoToSVGData(code) {
         85: [SVG_ICONS.snow, "阵雪"], 86: [SVG_ICONS.snow, "强阵雪"],
         95: [SVG_ICONS.thunder, "雷雨"], 96: [SVG_ICONS.thunder, "雷暴"], 99: [SVG_ICONS.thunder, "重雷暴"]
     };
-    if (!map[code]) console.warn("未识别的气象代码:", code);
     return map[code] || [SVG_ICONS.unknown, "未知"];
 }
 
@@ -155,7 +141,8 @@ async function fetchWeather() {
         const dailyCodes = data.daily.weather_code || data.daily.weathercode;
 
         for (let i = 0; i < 4; i++) {
-            const dateObj = new Date(data.daily.time[i]);
+            // 【修复时区错位】追加 'T00:00:00' 避免 Date() 隐式转换为 UTC 导致跨时区错位一天
+            const dateObj = new Date(data.daily.time[i] + 'T00:00:00');
             const dayName = i === 0 ? "今天" : `周${days[dateObj.getDay()]}`;
             const maxT = Math.round(data.daily.temperature_2m_max[i]);
             const minT = Math.round(data.daily.temperature_2m_min[i]);
@@ -174,91 +161,103 @@ async function fetchWeather() {
     }
 }
 
-// ================= 科技新闻引擎与设置管理 =================
-function openSettingsModal() {
+// ================= 科技新闻引擎（带分页缓冲机制） =================
+let cachedNewsData = [];
+let currentNewsPage = 0;
+const NEWS_PER_PAGE = 8; // 每页显示的新闻条数
+
+function openSettingsModal() { /* 保持原样 */
     const type = localStorage.getItem('rss-type') || 'default';
     const url = localStorage.getItem('rss-custom-url') || '';
-    
     document.querySelector(`input[name="rss-type"][value="${type}"]`).checked = true;
     document.getElementById('custom-rss-url').value = url;
     toggleRssInput();
-    
     document.getElementById('settings-modal').classList.add('active');
 }
 
-function closeSettingsModal() {
-    document.getElementById('settings-modal').classList.remove('active');
-}
-
-function toggleRssInput() {
-    const isCustom = document.querySelector('input[name="rss-type"]:checked').value === 'custom';
-    document.getElementById('custom-rss-url').disabled = !isCustom;
-}
+function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('active'); }
+function toggleRssInput() { document.getElementById('custom-rss-url').disabled = !(document.querySelector('input[name="rss-type"]:checked').value === 'custom'); }
 
 function saveSettings() {
     const type = document.querySelector('input[name="rss-type"]:checked').value;
     const url = document.getElementById('custom-rss-url').value.trim();
-    
-    if (type === 'custom' && !url) {
-        alert('请输入有效的 RSS 链接！');
-        return;
-    }
-
+    if (type === 'custom' && !url) return alert('请输入有效的 RSS 链接！');
     localStorage.setItem('rss-type', type);
     localStorage.setItem('rss-custom-url', url);
     closeSettingsModal();
-    
-    const listEl = document.getElementById('news-list');
-    listEl.innerHTML = `<li>正在应用新设置并拉取资讯...</li>`;
-    
-    // 直接重新获取网络数据
+    document.getElementById('news-list').innerHTML = `<li>正在应用新设置并拉取资讯...</li>`;
     fetchTechNews();
 }
 
 async function fetchTechNews() {
     const listEl = document.getElementById('news-list');
-    
     try {
         const rssType = localStorage.getItem('rss-type') || 'default';
-        let targetUrl = 'https://www.ithome.com/rss/';
-        if (rssType === 'custom') {
-            targetUrl = localStorage.getItem('rss-custom-url') || targetUrl;
-        }
+        let targetUrl = rssType === 'custom' ? (localStorage.getItem('rss-custom-url') || '') : 'https://www.ithome.com/rss/';
+        if (!targetUrl) targetUrl = 'https://www.ithome.com/rss/';
         
         const encodedUrl = encodeURIComponent(targetUrl);
-        // 保留时间戳，防止切换设置后依旧读取浏览器旧缓存
         const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}&t=${new Date().getTime()}`;
         
         const res = await fetch(apiUrl, { cache: 'no-store' });
         const json = await res.json();
         
-if (json.status === 'ok' && json.items) {
-            listEl.innerHTML = ''; 
-            // 直接截取前 12 条进行渲染
-            const newsData = json.items.slice(0, 12);
-            
-            // 创建一个文档片段（DocumentFragment）来提升性能，避免多次回流
-            const fragment = document.createDocumentFragment(); 
-            
-            newsData.forEach(item => {
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                
-                a.href = item.link; 
-                a.target = "_blank";
-                a.textContent = item.title; // 【】使用 textContent 避免 XSS 风险
-                
-                li.appendChild(a);
-                fragment.appendChild(li);
-            });
-            
-            // 一次性将所有节点插入 DOM
-            listEl.appendChild(fragment);
+        if (json.status === 'ok' && json.items) {
+            cachedNewsData = json.items; // 缓存数据
+            currentNewsPage = 0;         // 重置页码
+            renderNewsPage();
         }
-
     } catch (e) {
-        listEl.innerHTML = `<li>[订阅源错误] 无法解析该 RSS，请检查网址或网络环境。</li>`;
+        listEl.innerHTML = `<li>[订阅源错误] 无法解析该 RSS 或已达接口频次上限。</li>`;
     }
+}
+
+// 渲染特定页的新闻
+function renderNewsPage() {
+    const listEl = document.getElementById('news-list');
+    listEl.innerHTML = ''; 
+    const start = currentNewsPage * NEWS_PER_PAGE;
+    const end = start + NEWS_PER_PAGE;
+    const pageData = cachedNewsData.slice(start, end);
+    
+    const fragment = document.createDocumentFragment(); 
+    pageData.forEach(item => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = item.link; 
+        a.target = "_blank";
+        a.textContent = item.title;
+        li.appendChild(a);
+        fragment.appendChild(li);
+    });
+    listEl.appendChild(fragment);
+
+    // 更新分页器文字
+    const totalPages = Math.ceil(cachedNewsData.length / NEWS_PER_PAGE) || 1;
+    document.getElementById('news-page-info').textContent = `第 ${currentNewsPage + 1} / ${totalPages} 页`;
+}
+
+// 分页控制逻辑（自带物理防残影闪烁）
+function changeNewsPage(direction) {
+    if (window.isEinkFlashing || cachedNewsData.length === 0) return;
+    const totalPages = Math.ceil(cachedNewsData.length / NEWS_PER_PAGE);
+    
+    if (direction === -1 && currentNewsPage > 0) currentNewsPage--;
+    else if (direction === 1 && currentNewsPage < totalPages - 1) currentNewsPage++;
+    else return; // 到底了不闪屏
+
+    // 触发局部闪屏换页
+    window.isEinkFlashing = true;
+    const flashEl = document.getElementById('eink-flash');
+    flashEl.className = 'black';
+    setTimeout(() => {
+        flashEl.className = 'white';
+        setTimeout(() => {
+            renderNewsPage();
+            flashEl.className = '';
+            window.isEinkFlashing = false;
+        }, 260); 
+    }, 260); 
 }
 
 // ================= 启动入口 =================
@@ -269,4 +268,5 @@ window.onload = function() {
     fetchWeather();
     setInterval(fetchQuote, CONFIG.QUOTE_INTERVAL);
     setInterval(fetchWeather, CONFIG.WEATHER_INTERVAL);
+    setInterval(fetchTechNews, CONFIG.NEWS_INTERVAL); // 【新增】新闻定时自动刷新
 };

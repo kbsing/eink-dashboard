@@ -216,15 +216,14 @@ body {
 
 /* ========== 4. 新闻区 ========== */
 .news-section { flex: 1; height: 100%; }
-.news-panel { height: 100%; overflow-y: auto; padding: 15px; }
+.news-panel { height: 100%; overflow: hidden; padding: 15px; } /* 将 overflow-y: auto 改为 hidden */
 .news-panel ul { list-style-type: square; padding-left: 20px; }
-.news-panel li { margin-bottom: 12px; font-size: 1.1rem; line-height: 1.4; color: var(--text-main); }
+.news-panel li { margin-bottom: 15px; font-size: 1.15rem; line-height: 1.4; color: var(--text-main); }
 .news-panel a { 
     color: var(--text-main); text-decoration: underline; 
-    text-underline-offset: 4px; text-decoration-thickness: 1px; 
+    text-underline-offset: 4px; text-decoration-thickness: 1.5px; 
 }
 .news-panel a:hover { background-color: var(--text-main); color: var(--bg-base); text-decoration: none; }
-
 /* ========== 底部任务栏 ========== */
 .taskbar {
     background-color: var(--win-bg);

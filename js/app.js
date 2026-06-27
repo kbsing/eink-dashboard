@@ -77,8 +77,20 @@ function initClock() {
         const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 星期${days[now.getDay()]}`;
         if (elDate.innerText !== dateStr) elDate.innerText = dateStr;
     }
+    
+    // 1. 页面加载时立刻执行一次，显示当前时间
     tick();
-    setInterval(tick, 1000); 
+
+    // 2. 计算当前时间距离下一分钟的 00 秒还有多少毫秒
+    const now = new Date();
+    const msToNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+
+    // 3. 设定一个一次性的定时器，在下一分钟整点精准触发
+    setTimeout(() => {
+        tick(); // 整点更新一次
+        // 4. 之后就可以放心地使用 60000 毫秒（1分钟）的间隔了，大幅降低 CPU 唤醒频率
+        setInterval(tick, 60000); 
+    }, msToNextMinute);
 }
 
 async function fetchQuote() {

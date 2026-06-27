@@ -84,9 +84,15 @@ function initClock() {
 async function fetchQuote() {
     try {
         const res = await fetch('https://v1.hitokoto.cn?c=k&c=d&c=i');
+        // 增加 HTTP 状态码校验，如果不是 200-299，直接抛出异常交给 catch 处理
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        
         const data = await res.json();
         document.getElementById('hitokoto').innerText = `「 ${data.hitokoto} 」 —— ${data.from}`;
-    } catch (e) {}
+    } catch (e) {
+        // 无论是网络断开、超时，还是服务器 500 报错，都会统一走到这里
+        document.getElementById('hitokoto').innerText = `[一言接口请求失败/超时]`;
+    }
 }
 
 // ================= 气象引擎与 SVG 图标 =================
@@ -214,15 +220,28 @@ async function fetchTechNews() {
         const res = await fetch(apiUrl, { cache: 'no-store' });
         const json = await res.json();
         
-        if (json.status === 'ok' && json.items) {
-            listEl.innerHTML = '';
+if (json.status === 'ok' && json.items) {
+            listEl.innerHTML = ''; 
             // 直接截取前 12 条进行渲染
             const newsData = json.items.slice(0, 12);
+            
+            // 创建一个文档片段（DocumentFragment）来提升性能，避免多次回流
+            const fragment = document.createDocumentFragment(); 
+            
             newsData.forEach(item => {
-                listEl.innerHTML += `<li><a href="${item.link}" target="_blank">${item.title}</a></li>`;
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                
+                a.href = item.link; 
+                a.target = "_blank";
+                a.textContent = item.title; // 【】使用 textContent 避免 XSS 风险
+                
+                li.appendChild(a);
+                fragment.appendChild(li);
             });
-        } else {
-            throw new Error("API 解析失败");
+            
+            // 一次性将所有节点插入 DOM
+            listEl.appendChild(fragment);
         }
 
     } catch (e) {
